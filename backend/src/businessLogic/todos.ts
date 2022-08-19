@@ -1,5 +1,5 @@
-import { TodosAccess } from './todosAcess'
-import { AttachmentUtils } from './attachmentUtils';
+import { TodosAccess } from '../dataLayer/todosAcess'
+import { AttachmentUtils } from '../fileStorage/attachmentUtils';
 import { TodoItem } from '../models/TodoItem'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
@@ -29,7 +29,7 @@ export async function createTodo(
   createTodoRequest: CreateTodoRequest, userId: string
 ): Promise<TodoItem> {
   const todoId = uuid.v4()
-  const s3BucketName = process.env.ATTACHMENT_S3_BUCKET;
+  //const s3BucketName = process.env.ATTACHMENT_S3_BUCKET;
   const done:boolean = false
   //const timestamp:string = new Date().toISOString()
   try {
@@ -40,8 +40,8 @@ export async function createTodo(
       name: createTodoRequest.name,
       dueDate: createTodoRequest.dueDate,
       createdAt: new Date().toISOString(),
-      done: done,
-      attachmentUrl: `https://${s3BucketName}.s3.amazonaws.com/${todoId}`
+      done: done
+      //attachmentUrl: `https://${s3BucketName}.s3.amazonaws.com/${todoId}`
     })
   } catch (error) {
     logger.error(`Error message:${error}
@@ -83,10 +83,10 @@ export async function deleteTodo(userId: string, todoId: string) {
 const attachmentUtils = new AttachmentUtils()
 
 
-export async function createAttachmentPresignedUrl(todoId:string) {
+export async function createAttachmentPresignedUrl(todoId:string, userId: string) {
   try {
     logger.info(`Getting upload URL for todoId:${todoId}`)
-    return await attachmentUtils.getUploadUrl(todoId)
+    return await attachmentUtils.getUploadUrl(todoId, userId)
   } catch (error) {
     logger.error(`Error:${error}, Can't get upload URL for todoId:${todoId}`)
   }
